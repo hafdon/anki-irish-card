@@ -39,7 +39,7 @@ An interactive Anki card designed to help learners master the pronunciation of I
 ### Steps
 
 1. **Download the HTML File:**
-   - Clone this repository or download the `index.html` file directly.
+   - Clone this repository or download the `card-front.html` file directly.
 
 2. **Create a New Card in Anki:**
    - Open Anki and navigate to the deck where you want to add the card.
@@ -65,10 +65,7 @@ An interactive Anki card designed to help learners master the pronunciation of I
    - **Buttons:** Click on the Connacht (`Z`), Ulster (`X`), or Munster (`C`) buttons to hear the pronunciation.
    - **Keyboard Shortcuts:** Press the `Z`, `X`, or `C` keys on your keyboard to play the corresponding pronunciation.
 
-3. **Updating the Word:**
-   - Enter a new word in the input field and click the `Update Word` button to load pronunciations for the new word.
-
-4. **Visual Indicators:**
+3. **Visual Indicators:**
    - **Disabled Buttons:** If a pronunciation audio fails to load, the corresponding button will be greyed out and disabled.
    - **Active Playback:** When an audio pronunciation is playing, the respective button changes color to indicate active playback.
 
