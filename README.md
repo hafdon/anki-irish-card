@@ -1,6 +1,7 @@
 # Irish Word Pronunciations Anki Card
 
 ![Irish Pronunciations](./assets/screenshot01.png) 
+![Irish Pronunciations](./assets/screenshot02.png) 
 
 An interactive Anki card designed to help learners master the pronunciation of Irish words across three major dialects: Connacht, Ulster, and Munster. This card provides audio pronunciations, interactive buttons, and keyboard shortcuts to enhance your learning experience.
 
