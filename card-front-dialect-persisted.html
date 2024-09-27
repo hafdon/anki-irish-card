@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Irish Word Pronunciations</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 30px;
+                text-align: center;
+            }
+            h1 {
+                margin-bottom: 20px;
+            }
+            h2 {
+                margin-bottom: 20px;
+            }
+            .dialect-selection {
+                margin-bottom: 30px;
+            }
+            select {
+                font-size: 16px;
+                padding: 5px 10px;
+            }
+            button {
+                font-size: 18px;
+                padding: 10px 20px;
+                margin: 10px;
+                cursor: pointer;
+                transition: background-color 0.3s, opacity 0.3s;
+            }
+            button:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+            /* Style for buttons when audio is playing */
+            .playing {
+                background-color: #4caf50; /* Green color indicating playing */
+                color: white;
+            }
+            #instructions {
+                margin-top: 30px;
+                font-size: 16px;
+                color: #555;
+            }
+        </style>
+    </head>
+    <body>
+        <h1><span id="wordDisplay">{{Word}}</span></h1>
+
+        <div class="dialect-selection">
+            <label for="dialectSelect"><strong>Select Pronunciation Dialect:</strong></label>
+            <select id="dialectSelect">
+                <option value="">-- Random --</option>
+                <option value="Connacht">Connacht</option>
+                <option value="Ulster">Ulster</option>
+                <option value="Munster">Munster</option>
+            </select>
+            <button id="resetDialect">Reset Selection</button>
+        </div>
+
+        <h2>Pronunciation:</h2>
+
+        <button id="btnPronunciation">Play Pronunciation (Press 'P')</button>
+
+        <p id="instructions">Use the button or press 'P' to play the pronunciation.</p>
+
+        <!-- Audio element -->
+        <audio id="audioPronunciation" preload="auto"></audio>
+
+        <script>
+            // Retrieve the word from Anki
+            var word = "{{Word}}";
+
+            // Elements
+            var wordDisplay = document.getElementById("wordDisplay");
+            var dialectSelect = document.getElementById("dialectSelect");
+            var resetDialectBtn = document.getElementById("resetDialect");
+            var btnPronunciation = document.getElementById("btnPronunciation");
+            var audioPronunciation = document.getElementById("audioPronunciation");
+
+            // Define available dialects with their corresponding codes and keyboard keys
+            var dialects = {
+                "Connacht": { code: "CanC", label: "Connacht" },
+                "Ulster": { code: "CanU", label: "Ulster" },
+                "Munster": { code: "CanM", label: "Munster" }
+            };
+
+            // Function to get the selected dialect from localStorage
+            function getSelectedDialect() {
+                return localStorage.getItem("selectedDialect");
+            }
+
+            // Function to set the selected dialect in localStorage
+            function setSelectedDialect(dialect) {
+                if (dialect) {
+                    localStorage.setItem("selectedDialect", dialect);
+                } else {
+                    localStorage.removeItem("selectedDialect");
+                }
+            }
+
+            // Function to create a pronunciation button (single button in this case)
+            // Since dialect selection is global, only one button is needed
+            function setupPronunciationButton() {
+                btnPronunciation.addEventListener("click", function () {
+                    playPronunciation();
+                });
+            }
+
+            // Function to set up audio event listeners
+            function setupAudioEvents() {
+                audioPronunciation.addEventListener("play", function () {
+                    btnPronunciation.classList.add("playing");
+                });
+
+                audioPronunciation.addEventListener("ended", function () {
+                    btnPronunciation.classList.remove("playing");
+                });
+
+                audioPronunciation.addEventListener("pause", function () {
+                    btnPronunciation.classList.remove("playing");
+                });
+
+                audioPronunciation.addEventListener("error", function () {
+                    btnPronunciation.disabled = true;
+                    btnPronunciation.title = "Audio not available";
+                });
+            }
+
+            // Function to play the selected pronunciation
+            function playPronunciation() {
+                var selectedDialect = getSelectedDialect();
+                var dialectCode;
+                if (selectedDialect && dialects[selectedDialect]) {
+                    dialectCode = dialects[selectedDialect].code;
+                } else {
+                    // If no dialect is selected, choose a random one
+                    var dialectNames = Object.keys(dialects);
+                    var randomDialectName = dialectNames[Math.floor(Math.random() * dialectNames.length)];
+                    dialectCode = dialects[randomDialectName].code;
+                }
+
+                var encodedWord = encodeURIComponent(word);
+                audioPronunciation.src = "https://www.teanglann.ie/" + dialectCode + "/" + encodedWord + ".mp3";
+                audioPronunciation.play();
+            }
+
+            // Function to initialize dialect selection
+            function initializeDialectSelection() {
+                // Set the dropdown to the stored dialect if any
+                var storedDialect = getSelectedDialect();
+                if (storedDialect && dialects[storedDialect]) {
+                    dialectSelect.value = storedDialect;
+                } else {
+                    dialectSelect.value = "";
+                }
+
+                // Event listener for dialect selection change
+                dialectSelect.addEventListener("change", function () {
+                    var selected = dialectSelect.value;
+                    if (selected && dialects[selected]) {
+                        setSelectedDialect(selected);
+                        alert("Dialect set to " + selected + ". This will apply to all cards in this review session.");
+                    } else {
+                        setSelectedDialect(null);
+                        alert("Dialect selection cleared. Dialects will be chosen randomly.");
+                    }
+                });
+
+                // Event listener for reset button
+                resetDialectBtn.addEventListener("click", function () {
+                    dialectSelect.value = "";
+                    setSelectedDialect(null);
+                    alert("Dialect selection has been reset. Dialects will be chosen randomly.");
+                });
+            }
+
+            // Add keyboard shortcut (Press 'P') to play pronunciation
+            document.addEventListener("keydown", function (event) {
+                if (event.key.toLowerCase() === "p") {
+                    playPronunciation();
+                }
+            });
+
+            // Initialize everything
+            function initializeCard() {
+                wordDisplay.textContent = word;
+                setupPronunciationButton();
+                setupAudioEvents();
+                initializeDialectSelection();
+            }
+
+            // Call the initialize function on load
+            initializeCard();
+
+            // Optionally, auto-play the pronunciation on load
+            // Uncomment the following line if you want to auto-play
+            playPronunciation();
+        </script>
+    </body>
+</html>
+
