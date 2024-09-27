@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Irish Word Pronunciations</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 30px;
+                text-align: center;
+            }
+            h1 {
+                margin-bottom: 40px;
+            }
+            button {
+                font-size: 18px;
+                padding: 10px 20px;
+                margin: 10px;
+                cursor: pointer;
+                transition: background-color 0.3s, opacity 0.3s;
+            }
+            button:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+            /* Style for buttons when audio is playing */
+            .playing {
+                background-color: #4caf50; /* Green color indicating playing */
+                color: white;
+            }
+            #instructions {
+                margin-top: 30px;
+                font-size: 16px;
+                color: #555;
+            }
+            input[type="text"] {
+                font-size: 18px;
+                padding: 5px;
+                margin-right: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1><span id="wordDisplay">{{Word}}</span></h1>
+
+        <h2>Pronunciations:</h2>
+
+        <button id="btnZ">Connacht (Press 'Z')</button>
+        <button id="btnX">Ulster (Press 'X')</button>
+        <button id="btnC">Munster (Press 'C')</button>
+
+        <p id="instructions">Use the buttons or press the corresponding keys to play the pronunciations.</p>
+
+        <!-- Audio elements -->
+        <audio id="audioZ" preload="auto"></audio>
+        <audio id="audioX" preload="auto"></audio>
+        <audio id="audioC" preload="auto"></audio>
+
+        <script>
+            // Initial word
+            var word = "{{Word}}";
+
+            // Elements
+            var wordDisplay = document.getElementById("wordDisplay");
+            var btnZ = document.getElementById("btnZ");
+            var btnX = document.getElementById("btnX");
+            var btnC = document.getElementById("btnC");
+            var audioZ = document.getElementById("audioZ");
+            var audioX = document.getElementById("audioX");
+            var audioC = document.getElementById("audioC");
+
+            // Mapping between audio elements and buttons
+            var audioButtonMap = {
+                audioZ: btnZ,
+                audioX: btnX,
+                audioC: btnC,
+            };
+
+            // Function to update pronunciations
+            function updatePronunciations() {
+                var encodedWord = encodeURIComponent(word);
+                audioZ.src = "https://www.teanglann.ie/CanC/" + encodedWord + ".mp3"; // Connacht
+                audioX.src = "https://www.teanglann.ie/CanU/" + encodedWord + ".mp3"; // Ulster
+                audioC.src = "https://www.teanglann.ie/CanM/" + encodedWord + ".mp3"; // Munster
+
+                // Enable all buttons before loading
+                btnZ.disabled = false;
+                btnX.disabled = false;
+                btnC.disabled = false;
+
+                // Remove 'playing' class from all buttons
+                btnZ.classList.remove("playing");
+                btnX.classList.remove("playing");
+                btnC.classList.remove("playing");
+
+                // Preload audio files
+                audioZ.load();
+                audioX.load();
+                audioC.load();
+
+                // Update displayed word
+                wordDisplay.textContent = word;
+            }
+
+            // Function to play a pronunciation
+            function playPronunciation(key) {
+                var audioPlayer;
+                if (key === "z") {
+                    audioPlayer = audioZ;
+                } else if (key === "x") {
+                    audioPlayer = audioX;
+                } else if (key === "c") {
+                    audioPlayer = audioC;
+                } else {
+                    return;
+                }
+
+                audioPlayer.play();
+            }
+
+            // Function to handle audio events
+            function setupAudioEvents(audioElement, buttonElement) {
+                // When audio starts playing
+                audioElement.addEventListener("play", function () {
+                    buttonElement.classList.add("playing");
+                });
+
+                // When audio is paused or ended
+                audioElement.addEventListener("ended", function () {
+                    buttonElement.classList.remove("playing");
+                });
+                audioElement.addEventListener("pause", function () {
+                    buttonElement.classList.remove("playing");
+                });
+
+                // If there's an error loading the audio
+                audioElement.addEventListener("error", function () {
+                    buttonElement.disabled = true;
+                    buttonElement.title = "Audio not available";
+                });
+            }
+
+            // Setup events for each audio button
+            setupAudioEvents(audioZ, btnZ);
+            setupAudioEvents(audioX, btnX);
+            setupAudioEvents(audioC, btnC);
+
+            // Add button-specific event listeners to buttons
+            btnZ.addEventListener("click", function () {
+                playPronunciation("z");
+            });
+
+            btnX.addEventListener("click", function () {
+                playPronunciation("x");
+            });
+
+            btnC.addEventListener("click", function () {
+                playPronunciation("c");
+            });
+
+            // Add keyboard shortcuts
+            document.addEventListener("keydown", function (event) {
+                var key = event.key.toLowerCase();
+                if (key === "z" || key === "x" || key === "c") {
+                    playPronunciation(key);
+                }
+            });
+
+            // Initial setup
+            updatePronunciations();
+
+            // Optionally, play a random pronunciation on load
+            var keys = ["z", "x", "c"];
+            var randomKey = keys[Math.floor(Math.random() * keys.length)];
+            playPronunciation(randomKey);
+        </script>
+    </body>
+</html>
+
